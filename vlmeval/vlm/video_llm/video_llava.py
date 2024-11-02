@@ -29,7 +29,7 @@ class VideoLLaVA_HF(BaseModel):
     VIDEO_LLM = True
     # sample a video in 8 frames
 
-    def __init__(self, model_path='LanguageBind/Video-LLaVA-7B-hf', **kwargs):
+    def __init__(self, model_path='LanguageBind/Video-LLaVA-7B-hf', cache_dir = './cache',**kwargs):
         try:
             from transformers import VideoLlavaProcessor, VideoLlavaForConditionalGeneration
         except Exception as err:
@@ -40,9 +40,9 @@ class VideoLLaVA_HF(BaseModel):
 
         assert model_path is not None
         self.model_path = model_path
-        self.model = VideoLlavaForConditionalGeneration.from_pretrained(model_path)
+        self.model = VideoLlavaForConditionalGeneration.from_pretrained(model_path, cache_dir=cache_dir)
         self.model.eval().cuda()
-        self.processor = VideoLlavaProcessor.from_pretrained(model_path)
+        self.processor = VideoLlavaProcessor.from_pretrained(model_path, cache_dir=cache_dir)
         self.kwargs = kwargs
         torch.cuda.empty_cache()
 
@@ -84,23 +84,23 @@ class VideoLLaVA(BaseModel):
     VIDEO_LLM = True
     # sample a video in 8 frames
 
-    def __init__(self, model_path='LanguageBind/Video-LLaVA-7B', **kwargs):
+    def __init__(self, model_path='LanguageBind/Video-LLaVA-7B', cache_dir='./cache',**kwargs):
         assert model_path is not None
         try:
-            from videollava.conversation import conv_templates, SeparatorStyle
-            from videollava.constants import DEFAULT_IMAGE_TOKEN, IMAGE_TOKEN_INDEX
-            from videollava.constants import DEFAULT_VID_START_TOKEN, DEFAULT_VID_END_TOKEN
-            from videollava.mm_utils import get_model_name_from_path, tokenizer_image_token, KeywordsStoppingCriteria
-            from videollava.model.builder import load_pretrained_model
-            from videollava.model.language_model.llava_llama import LlavaLlamaForCausalLM
-            from videollava.train.train import smart_tokenizer_and_embedding_resize
+            from vlmeval.vlm.video_llm.videollava.conversation import conv_templates, SeparatorStyle
+            from vlmeval.vlm.video_llm.videollava.constants import DEFAULT_IMAGE_TOKEN, IMAGE_TOKEN_INDEX
+            from vlmeval.vlm.video_llm.videollava.constants import DEFAULT_VID_START_TOKEN, DEFAULT_VID_END_TOKEN
+            from vlmeval.vlm.video_llm.videollava.mm_utils import get_model_name_from_path, tokenizer_image_token, KeywordsStoppingCriteria
+            from vlmeval.vlm.video_llm.videollava.model.builder import load_pretrained_model
+            from vlmeval.vlm.video_llm.videollava.model.language_model.llava_llama import LlavaLlamaForCausalLM
+            from vlmeval.vlm.video_llm.videollava.train.train import smart_tokenizer_and_embedding_resize
         except Exception as err:
             logging.critical('Please install Video-LLaVA from https://github.com/FangXinyu-0913/Video-LLaVA.')
             raise err
 
         model_base = None
         model_name = model_path.split('/')[-1]
-        tokenizer, model, processor, context_len = load_pretrained_model(model_path, model_base, model_name)
+        tokenizer, model, processor, context_len = load_pretrained_model(model_path, model_base, model_name,cache_dir=cache_dir)
         self.tokenizer = tokenizer
         self.model = model
         self.processor = processor

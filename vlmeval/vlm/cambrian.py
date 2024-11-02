@@ -15,12 +15,12 @@ class Cambrian(BaseModel):
     INSTALL_REQ = True
     INTERLEAVE = False
 
-    def __init__(self, model_path='nyu-visionx/cambrian-8b', **kwargs):
+    def __init__(self, model_path='nyu-visionx/cambrian-8b', cache_dir=None, **kwargs):
         assert model_path is not None
         try:
-            from cambrian.conversation import conv_templates, SeparatorStyle
-            from cambrian.model.builder import load_pretrained_model
-            from cambrian.mm_utils import tokenizer_image_token, process_images, get_model_name_from_path
+            from vlmeval.vlm.Cambrian.cambrian.conversation import conv_templates, SeparatorStyle
+            from vlmeval.vlm.Cambrian.cambrian.model.builder import load_pretrained_model
+            from vlmeval.vlm.Cambrian.cambrian.mm_utils import tokenizer_image_token, process_images, get_model_name_from_path
         except Exception as e:
             logging.critical('Please install cambrian from https://github.com/cambrian-mllm/cambrian.')
             raise e
@@ -30,7 +30,8 @@ class Cambrian(BaseModel):
             model_path,
             None,
             model_name,
-            device_map=None
+            device_map=None,
+            cache_dir=cache_dir,
         )
 
         if '8b' in model_path:

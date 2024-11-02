@@ -13,9 +13,10 @@ class MiniGPT4(BaseModel):
 
     def __init__(self,
                  mode='v2',
-                 root='/mnt/petrelfs/share_data/duanhaodong/MiniGPT-4/',
+                 root=None,
                  temperature=1,
-                 max_out_len=512):
+                 max_out_len=512,
+                 cache_dir=None):
 
         if root is None:
             warnings.warn(
@@ -42,8 +43,8 @@ class MiniGPT4(BaseModel):
         sys.path.append(self.root)
 
         from omegaconf import OmegaConf
-        from minigpt4.common.registry import registry
-        from minigpt4.conversation.conversation import StoppingCriteriaSub, CONV_VISION_Vicuna0, CONV_VISION_minigptv2
+        from vlmeval.vlm.MiniGPT4.minigpt4.common.registry import registry
+        from vlmeval.vlm.MiniGPT4.minigpt4.conversation.conversation import StoppingCriteriaSub, CONV_VISION_Vicuna0, CONV_VISION_minigptv2
 
         device = torch.cuda.current_device()
         self.device = device
@@ -68,7 +69,7 @@ class MiniGPT4(BaseModel):
         self.stopping_criteria = StoppingCriteriaList([StoppingCriteriaSub(stops=stop_words_ids)])
 
     def generate_inner(self, message, dataset=None):
-        from minigpt4.conversation.conversation import Chat
+        from vlmeval.vlm.MiniGPT4.minigpt4.conversation.conversation import Chat
         prompt, image_path = self.message_to_promptimg(message, dataset=dataset)
         if self.mode == 'v2':
             chat = Chat(self.model, self.vis_processor, device=self.device)

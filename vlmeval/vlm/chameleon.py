@@ -11,15 +11,15 @@ class Chameleon(BaseModel):
     INSTALL_REQ = False
     INTERLEAVE = True
 
-    def __init__(self, model_path='facebook/chameleon-7b', **kwargs):
+    def __init__(self, model_path='facebook/chameleon-7b', cache_dir=None, **kwargs):
         try:
             from transformers import ChameleonProcessor, ChameleonForConditionalGeneration
         except Exception as e:
             logging.critical('Please install the latest transformers.')
             raise e
 
-        processor = ChameleonProcessor.from_pretrained(model_path)
-        model = ChameleonForConditionalGeneration.from_pretrained(model_path, torch_dtype=torch.bfloat16)
+        processor = ChameleonProcessor.from_pretrained(model_path, cache_dir=cache_dir)
+        model = ChameleonForConditionalGeneration.from_pretrained(model_path, cache_dir=cache_dir, torch_dtype=torch.bfloat16)
 
         self.model = model.cuda().eval()
         self.processor = processor

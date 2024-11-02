@@ -1,13 +1,5 @@
-import os
-import os.path as osp
-import string
-import sys
-import warnings
-
-import pandas as pd
 import torch
 from huggingface_hub import snapshot_download
-from PIL import Image
 from transformers import (AutoModel, AutoModelForCausalLM, AutoTokenizer,
                           CLIPImageProcessor, CLIPVisionModel,
                           GenerationConfig, StoppingCriteriaList)
@@ -29,10 +21,11 @@ class LLaVA_XTuner(BaseModel):
                  visual_select_layer=-2,
                  prompt_template=None,
                  stop_words=[],
-                 torch_dtype=torch.float16):
+                 torch_dtype=torch.float16,
+                 cache_dir=None):
         try:
             from peft import PeftModel
-            from xtuner.utils import PROMPT_TEMPLATE, StopWordStoppingCriteria
+            from vlmeval.vlm.Llava_xtuner.xtuner.utils import PROMPT_TEMPLATE, StopWordStoppingCriteria
         except Exception as err:
             logging.critical(
                 'Please install xtuner with `pip install -U xtuner` before '
@@ -44,7 +37,7 @@ class LLaVA_XTuner(BaseModel):
             if cache_path is not None:
                 llava_path = cache_path
             else:
-                llava_path = snapshot_download(repo_id=llava_path)
+                llava_path = snapshot_download(repo_id=llava_path, cache_dir=cache_dir)
         assert osp.exists(llava_path) and osp.isdir(llava_path)
 
         # build visual_encoder
@@ -59,10 +52,12 @@ class LLaVA_XTuner(BaseModel):
         llm = AutoModelForCausalLM.from_pretrained(llm_path,
                                                    trust_remote_code=True,
                                                    torch_dtype=torch_dtype,
-                                                   device_map='cpu')
+                                                   device_map='cpu',
+                                                   cache_dir=cache_dir)
         tokenizer = AutoTokenizer.from_pretrained(llm_path,
                                                   trust_remote_code=True,
-                                                  encode_special_tokens=True)
+                                                  encode_special_tokens=True,
+                                                  cache_dir=cache_dir)
         print(f'Load LLM from {llm_path}')
 
         # build visual_encoder
@@ -75,9 +70,9 @@ class LLaVA_XTuner(BaseModel):
             assert visual_encoder_path is not None, (
                 'Please specify the `visual_encoder_path`!')
         visual_encoder = CLIPVisionModel.from_pretrained(
-            visual_encoder_path, torch_dtype=torch_dtype, device_map='cpu')
+            visual_encoder_path, cache_dir=cache_dir, torch_dtype=torch_dtype, device_map='cpu')
         image_processor = CLIPImageProcessor.from_pretrained(
-            visual_encoder_path)
+            visual_encoder_path, cache_dir=cache_dir)
         print(f'Load visual_encoder from {visual_encoder_path}')
 
         # load adapter
@@ -189,9 +184,9 @@ class LLaVA_XTuner(BaseModel):
         return message
 
     def generate_inner(self, message, dataset=None):
-        from xtuner.dataset.utils import expand2square
-        from xtuner.model.utils import prepare_inputs_labels_for_multimodal
-        from xtuner.utils import DEFAULT_IMAGE_TOKEN, IMAGE_TOKEN_INDEX
+        from vlmeval.vlm.Llava_xtuner.xtuner.dataset.utils import expand2square
+        from vlmeval.vlm.Llava_xtuner.xtuner.model.utils import prepare_inputs_labels_for_multimodal
+        from vlmeval.vlm.Llava_xtuner.xtuner.utils import DEFAULT_IMAGE_TOKEN, IMAGE_TOKEN_INDEX
         prompt, image_path = self.message_to_promptimg(message, dataset=dataset)
         prompt = prompt.replace('<image>', '')
         image = Image.open(image_path).convert('RGB')

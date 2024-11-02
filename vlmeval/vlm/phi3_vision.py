@@ -10,7 +10,7 @@ class Phi3Vision(BaseModel):
     INSTALL_REQ = False
     INTERLEAVE = False
 
-    def __init__(self, model_path='microsoft/Phi-3-vision-128k-instruct', **kwargs):
+    def __init__(self, model_path='microsoft/Phi-3-vision-128k-instruct', cache_dir=None, **kwargs):
         try:
             from transformers import AutoProcessor, AutoModelForCausalLM
         except Exception as e:
@@ -18,8 +18,8 @@ class Phi3Vision(BaseModel):
             raise e
 
         model = AutoModelForCausalLM.from_pretrained(
-            model_path, device_map='cuda', trust_remote_code=True, torch_dtype='auto').eval()
-        processor = AutoProcessor.from_pretrained(model_path, trust_remote_code=True)
+            model_path, cache_dir=cache_dir, device_map='cuda', trust_remote_code=True, torch_dtype='auto').eval()
+        processor = AutoProcessor.from_pretrained(model_path, cache_dir=cache_dir, trust_remote_code=True)
         self.model = model
         self.processor = processor
         self.kwargs = kwargs
@@ -107,7 +107,7 @@ class Phi3_5Vision(BaseModel):
     INSTALL_REQ = False
     INTERLEAVE = False
 
-    def __init__(self, model_path='microsoft/Phi-3.5-vision-instruct', **kwargs):
+    def __init__(self, model_path='microsoft/Phi-3.5-vision-instruct', cache_dir=None, **kwargs):
         try:
             from transformers import AutoProcessor, AutoModelForCausalLM
         except Exception as e:
@@ -115,11 +115,11 @@ class Phi3_5Vision(BaseModel):
             raise e
 
         model = AutoModelForCausalLM.from_pretrained(
-            model_path, device_map='cuda', trust_remote_code=True, torch_dtype='auto',
+            model_path, cache_dir=cache_dir, device_map='cuda', trust_remote_code=True, torch_dtype='auto',
             _attn_implementation='flash_attention_2').eval()
 
         # for best performance, use num_crops=4 for multi-frame, num_crops=16 for single-frame.
-        processor = AutoProcessor.from_pretrained(model_path, trust_remote_code=True, num_crops=4)
+        processor = AutoProcessor.from_pretrained(model_path, cache_dir=cache_dir, trust_remote_code=True, num_crops=4)
         self.model = model
         self.processor = processor
         self.kwargs = kwargs

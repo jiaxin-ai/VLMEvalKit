@@ -39,7 +39,7 @@ class VXVERSE(BaseModel):
     INSTALL_REQ = True
     INTERLEAVE = False
 
-    def __init__(self, model_name='XVERSE-V-13B', root=None, **kwargs):
+    def __init__(self, model_name='XVERSE-V-13B', root=None, cache_dir=None, **kwargs):
 
         if root is None:
             warnings.warn('Please set root to the directory of vxverse.')
@@ -55,7 +55,7 @@ class VXVERSE(BaseModel):
             if cache_path is not None:
                 ckpt_dir = cache_path
             else:
-                ckpt_dir = snapshot_download(repo_id=ckpt_dir)
+                ckpt_dir = snapshot_download(repo_id=ckpt_dir, cache_dir=cache_dir)
         assert osp.exists(ckpt_dir) and osp.isdir(ckpt_dir)
         ckpt = osp.join(ckpt_dir, 'adapter_and_lora.bin')
         cfg['ckpt'] = ckpt

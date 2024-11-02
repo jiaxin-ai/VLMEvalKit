@@ -18,12 +18,12 @@ class Mantis(BaseModel):
     DEFAULT_IMAGE_TOKEN = '<image>'
     IMAGE_TOKEN_INDEX = -200
 
-    def __init__(self, model_path='TIGER-Lab/Mantis-8B-siglip-llama3', **kwargs):
+    def __init__(self, model_path='TIGER-Lab/Mantis-8B-siglip-llama3', cache_dir=None, **kwargs):
         assert model_path is not None
         try:
-            from mantis.models.mllava import LlavaForConditionalGeneration, MLlavaProcessor
-            from mantis.models.mfuyu import MFuyuForCausalLM, MFuyuProcessor
-            from mantis.models.conversation import conv_mllava_v1 as default_conv, conv_templates
+            from vlmeval.vlm.Mantis.mantis.models.mllava import LlavaForConditionalGeneration, MLlavaProcessor
+            from vlmeval.vlm.Mantis.mantis.models.mfuyu import MFuyuForCausalLM, MFuyuProcessor
+            from vlmeval.vlm.Mantis.mantis.models.conversation import conv_mllava_v1 as default_conv, conv_templates
         except Exception as e:
             logging.critical(
                 "Mantis is not installed. Please install Mantis to use this model.Please use 'pip install "
@@ -55,25 +55,25 @@ class Mantis(BaseModel):
         # Here load the "non-idefics" Mantis model.
         if not self._is_idefics:
             if 'fuyu' in model_path.lower():
-                self.processor = MFuyuProcessor.from_pretrained(self.model_path)
+                self.processor = MFuyuProcessor.from_pretrained(self.model_path, cache_dir=cache_dir)
                 model = MFuyuForCausalLM.from_pretrained(
-                    self.model_path,
+                    self.model_path, cache_dir=cache_dir,
                     device_map='cuda',
                     attn_implementation=attn_implementation,
                     torch_dtype=torch.float16
                 )
             else:
-                self.processor = MLlavaProcessor.from_pretrained(self.model_path)
+                self.processor = MLlavaProcessor.from_pretrained(self.model_path, cache_dir=cache_dir)
                 model = LlavaForConditionalGeneration.from_pretrained(
-                    self.model_path,
+                    self.model_path, cache_dir=cache_dir,
                     device_map='cuda',
                     attn_implementation=attn_implementation,
                     torch_dtype=torch.float16
                 )
         else:
-            self.processor = AutoProcessor.from_pretrained(self.model_path)
+            self.processor = AutoProcessor.from_pretrained(self.model_path, cache_dir=cache_dir)
             model = AutoModelForVision2Seq.from_pretrained(
-                self.model_path,
+                self.model_path, cache_dir=cache_dir,
                 device_map='cuda',
                 torch_dtype=torch.float16
             )

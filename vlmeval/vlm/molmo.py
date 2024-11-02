@@ -12,7 +12,7 @@ class molmo(BaseModel):
     INSTALL_REQ = False
     INTERLEAVE = False
 
-    def __init__(self, model_path='allenai/Molmo-7B-D-0924', **kwargs):
+    def __init__(self, model_path='allenai/Molmo-7B-D-0924', cache_dir=None, **kwargs):
         try:
             from transformers import AutoModelForCausalLM, AutoProcessor, GenerationConfig
             import einops
@@ -22,18 +22,18 @@ class molmo(BaseModel):
 
         if '72b' not in model_path.lower():
             self.model = AutoModelForCausalLM.from_pretrained(
-                model_path,
+                model_path, cache_dir=cache_dir,
                 trust_remote_code=True,
                 torch_dtype=torch.bfloat16,
                 device_map='cuda')
         else:
             self.model = AutoModelForCausalLM.from_pretrained(
-                model_path,
+                model_path, cache_dir=cache_dir,
                 trust_remote_code=True,
                 torch_dtype=torch.bfloat16,
                 device_map='auto')
 
-        self.processor = AutoProcessor.from_pretrained(model_path, trust_remote_code=True, torch_dtype=torch.bfloat16)
+        self.processor = AutoProcessor.from_pretrained(model_path, cache_dir=cache_dir, trust_remote_code=True, torch_dtype=torch.bfloat16)
         self.kwargs = kwargs
         self.model_name = model_path
 

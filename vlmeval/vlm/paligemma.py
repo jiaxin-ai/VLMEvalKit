@@ -9,7 +9,7 @@ class PaliGemma(BaseModel):
     INSTALL_REQ = False
     INTERLEAVE = False
 
-    def __init__(self, model_path='google/paligemma-3b-mix-448', **kwargs):
+    def __init__(self, model_path='google/paligemma-3b-mix-448', cache_dir=None, **kwargs):
         try:
             from transformers import AutoProcessor, PaliGemmaForConditionalGeneration
         except Exception as e:
@@ -21,9 +21,10 @@ class PaliGemma(BaseModel):
             torch_dtype=torch.bfloat16,
             device_map='cpu',
             revision='bfloat16',
+            cache_dir=cache_dir
         ).eval()
         self.model = model.cuda()
-        self.processor = AutoProcessor.from_pretrained(model_path)
+        self.processor = AutoProcessor.from_pretrained(model_path, cache_dir=cache_dir)
         self.kwargs = kwargs
 
     def generate_inner(self, message, dataset=None):

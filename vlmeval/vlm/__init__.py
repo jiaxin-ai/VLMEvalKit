@@ -17,7 +17,6 @@ from .monkey import Monkey, MonkeyChat
 from .moondream import Moondream1, Moondream2
 from .minimonkey import MiniMonkey
 from .mplug_owl2 import mPLUG_Owl2
-from .omnilmm import OmniLMM12B
 from .open_flamingo import OpenFlamingo
 from .pandagpt import PandaGPT
 from .qwen_vl import QwenVL, QwenVLChat

@@ -8,8 +8,8 @@ from transformers import AutoModel, GenerationConfig
 
 
 class WeMM(BaseModel):
-    def __init__(self, model_path='feipengma/WeMM', **kwargs):
-        self.wemm = AutoModel.from_pretrained(model_path, torch_dtype=torch.bfloat16, trust_remote_code=True)
+    def __init__(self, model_path='feipengma/WeMM', cache_dir=None, **kwargs):
+        self.wemm = AutoModel.from_pretrained(model_path, cache_dir=cache_dir, torch_dtype=torch.bfloat16, trust_remote_code=True)
         self.wemm.cuda()
         self.wemm.eval()
         torch.cuda.empty_cache()

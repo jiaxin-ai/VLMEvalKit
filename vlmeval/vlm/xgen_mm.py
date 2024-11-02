@@ -10,7 +10,7 @@ class XGenMM(BaseModel):
     INSTALL_REQ = False
     INTERLEAVE = True
 
-    def __init__(self, model_path='Salesforce/xgen-mm-phi3-mini-instruct-interleave-r-v1.5', **kwargs):
+    def __init__(self, model_path='Salesforce/xgen-mm-phi3-mini-instruct-interleave-r-v1.5', cache_dir=None, **kwargs):
         try:
             from transformers import AutoModelForVision2Seq, AutoTokenizer, AutoImageProcessor
         except Exception as err:
@@ -18,16 +18,16 @@ class XGenMM(BaseModel):
             raise err
 
         model = AutoModelForVision2Seq.from_pretrained(
-            model_path, device_map='cuda', trust_remote_code=True, torch_dtype='auto'
+            model_path, cache_dir=cache_dir, device_map='cuda', trust_remote_code=True, torch_dtype='auto'
         ).eval()
 
         tokenizer = AutoTokenizer.from_pretrained(
-            model_path, trust_remote_code=True, use_fast=False, legacy=False
+            model_path, cache_dir=cache_dir, trust_remote_code=True, use_fast=False, legacy=False
         )
         tokenizer = model.update_special_tokens(tokenizer)
         tokenizer.eos_token = '<|end|>'
         tokenizer.padding_side = 'left'
-        image_processor = AutoImageProcessor.from_pretrained(model_path, trust_remote_code=True)
+        image_processor = AutoImageProcessor.from_pretrained(model_path, cache_dir=cache_dir, trust_remote_code=True)
         self.model = model
         self.image_processor = image_processor
         self.tokenizer = tokenizer

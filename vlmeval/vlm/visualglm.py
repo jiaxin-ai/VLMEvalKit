@@ -8,7 +8,7 @@ class VisualGLM(BaseModel):
     INSTALL_REQ = False
     INTERLEAVE = False
 
-    def __init__(self, model_path='THUDM/visualglm-6b', **kwargs):
+    def __init__(self, model_path='THUDM/visualglm-6b', cache_dir=None, **kwargs):
         try:
             import sat
         except Exception as err:
@@ -20,8 +20,8 @@ class VisualGLM(BaseModel):
 
         from transformers import AutoModel
         from transformers import AutoTokenizer
-        self.tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
-        model = AutoModel.from_pretrained(model_path, trust_remote_code=True).half().cuda()
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True, cache_dir=cache_dir)
+        model = AutoModel.from_pretrained(model_path, trust_remote_code=True, cache_dir=cache_dir).half().cuda()
         self.model = model
         self.kwargs = kwargs
         warnings.warn(f'Following kwargs received: {self.kwargs}, will use as generation config. ')

@@ -89,16 +89,16 @@ class Chatunivi(BaseModel):
     VIDEO_LLM = True
     # sample 1 fps (maximum 64 frames) from the video
 
-    def __init__(self, model_path='Chat-UniVi/Chat-UniVi', **kwargs):
+    def __init__(self, model_path='Chat-UniVi/Chat-UniVi', cache_dir='./cache', **kwargs):
         assert model_path is not None
         try:
-            from ChatUniVi.model.builder import load_pretrained_model
+            from vlmeval.vlm.video_llm.ChatUniVi.model.builder import load_pretrained_model
         except Exception as err:
             logging.critical('Please install Chat-UniVi from https://github.com/PKU-YuanGroup/Chat-UniVi.git.')
             raise err
 
         model_name = 'ChatUniVi'
-        tokenizer, model, processor, context_len = load_pretrained_model(model_path, None, model_name)
+        tokenizer, model, processor, context_len = load_pretrained_model(model_path, None, model_name,cache_dir)
         self.tokenizer = tokenizer
         self.model = model
         vision_tower = model.get_vision_tower()

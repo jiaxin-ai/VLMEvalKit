@@ -1,3 +1,5 @@
+from linecache import cache
+
 import torch
 from PIL import Image
 import re
@@ -13,16 +15,16 @@ class OmChat(BaseModel):
     INSTALL_REQ = True
     INTERLEAVE = True
 
-    def __init__(self, model_path='omlab/omchat-v2.0-13B-single-beta_hf', **kwargs):
+    def __init__(self, model_path='omlab/omchat-v2.0-13B-single-beta_hf', cache_dir=None, **kwargs):
 
         # Recommend to install `transformers==4.44.0`
         assert model_path is not None
         self.model_path = model_path
         print(f'load from {self.model_path}')
-        model = AutoModel.from_pretrained(self.model_path, trust_remote_code=True, torch_dtype=torch.float16)
+        model = AutoModel.from_pretrained(self.model_path, trust_remote_code=True, torch_dtype=torch.float16, cache_dir=cache_dir)
         self.model = model.cuda().eval()
         self.kwargs = kwargs
-        self.processor = AutoProcessor.from_pretrained(self.model_path, trust_remote_code=True)
+        self.processor = AutoProcessor.from_pretrained(self.model_path, trust_remote_code=True, cache_dir=cache_dir)
         torch.cuda.empty_cache()
 
         # system prompt

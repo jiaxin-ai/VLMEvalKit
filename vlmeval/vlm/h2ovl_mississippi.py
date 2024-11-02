@@ -13,16 +13,16 @@ class H2OVLChat(BaseModel):
     INSTALL_REQ = False
     INTERLEAVE = True
 
-    def __init__(self, model_path='h2oai/h2ovl-mississippi-2b', **kwargs):
+    def __init__(self, model_path='h2oai/h2ovl-mississippi-2b', cache_dir=None, **kwargs):
         assert model_path is not None
 
         self.model_path = model_path
-        self.tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True, use_fast=False)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path, cache_dir=cache_dir, trust_remote_code=True, use_fast=False)
 
         device = torch.cuda.current_device()
         self.device = device
         self.model = AutoModel.from_pretrained(
-            model_path,
+            model_path, cache_dir=cache_dir,
             torch_dtype=torch.bfloat16,
             trust_remote_code=True).eval()
         self.model = self.model.to(device)

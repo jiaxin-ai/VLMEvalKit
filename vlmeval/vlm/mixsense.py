@@ -13,16 +13,16 @@ class LLama3Mixsense(BaseModel):
     INSTALL_REQ = False
     INTERLEAVE = False
 
-    def __init__(self, model_path='Zero-Vision/Llama-3-MixSenseV1_1', **kwargs):
+    def __init__(self, model_path='Zero-Vision/Llama-3-MixSenseV1_1', cache_dir=None, **kwargs):
         assert model_path is not None
         transformers.logging.set_verbosity_error()
         transformers.logging.disable_progress_bar()
         warnings.filterwarnings('ignore')
         self.tokenizer = AutoTokenizer.from_pretrained(
-            model_path, trust_remote_code=True
+            model_path, trust_remote_code=True, cache_dir=cache_dir
         )
         self.model = AutoModelForCausalLM.from_pretrained(
-            model_path, trust_remote_code=True
+            model_path, trust_remote_code=True, cache_dir=cache_dir
         ).to('cuda').eval()
         self.kwargs = kwargs
 

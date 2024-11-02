@@ -58,6 +58,7 @@ class Yi_VL(BaseModel):
     def __init__(self,
                  model_path='01-ai/Yi-VL-6B',
                  root=None,
+                 cache_dir=None,
                  **kwargs):
 
         if root is None:
@@ -71,7 +72,7 @@ class Yi_VL(BaseModel):
 
         if splitlen(model_path, '/') == 2 and not osp.exists(model_path):
             if get_cache_path(model_path) is None:
-                snapshot_download(repo_id=model_path)
+                snapshot_download(repo_id=model_path, cache_dir=cache_dir)
             edit_config(model_path)
         elif osp.exists(model_path):
             edit_config(model_path)
@@ -84,7 +85,8 @@ class Yi_VL(BaseModel):
         get_model_name_from_path(model_path)
         self.tokenizer, self.model, self.image_processor, self.context_len = load_pretrained_model(
             model_path,
-            device_map='cpu')
+            device_map='cpu',
+            cache_dir=cache_dir)
         self.model = self.model.cuda()
         self.conv_mode = 'mm_default'
 

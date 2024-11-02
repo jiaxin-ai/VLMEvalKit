@@ -19,16 +19,16 @@ class DeepSeekVL(BaseModel):
                 'Please first install deepseek_vl from source codes in: https://github.com/deepseek-ai/DeepSeek-VL')
             raise e
 
-    def __init__(self, model_path='deepseek-ai/deepseek-vl-1.3b-chat', **kwargs):
+    def __init__(self, model_path='deepseek-ai/deepseek-vl-1.3b-chat', cache_dir=None, **kwargs):
         self.check_install()
         assert model_path is not None
         self.model_path = model_path
-        from deepseek_vl.models import VLChatProcessor
+        from vlmeval.vlm.DeepSeek_VL.deepseek_vl.models import VLChatProcessor
 
-        self.vl_chat_processor = VLChatProcessor.from_pretrained(model_path)
+        self.vl_chat_processor = VLChatProcessor.from_pretrained(model_path, cache_dir=cache_dir)
         self.tokenizer = self.vl_chat_processor.tokenizer
 
-        model = AutoModelForCausalLM.from_pretrained(model_path, trust_remote_code=True)
+        model = AutoModelForCausalLM.from_pretrained(model_path, cache_dir=cache_dir, trust_remote_code=True)
         self.model = model.to(torch.bfloat16).cuda().eval()
 
         torch.cuda.empty_cache()
@@ -62,7 +62,7 @@ class DeepSeekVL(BaseModel):
 
     def generate_inner(self, message, dataset=None):
         conversation = self.prepare_inputs(message)
-        from deepseek_vl.utils.io import load_pil_images
+        from vlmeval.vlm.DeepSeek_VL.deepseek_vl.utils.io import load_pil_images
         pil_images = load_pil_images(conversation)
         prepare_inputs = self.vl_chat_processor(conversations=conversation, images=pil_images, force_batchify=True)
         prepare_inputs = prepare_inputs.to(self.model.device)

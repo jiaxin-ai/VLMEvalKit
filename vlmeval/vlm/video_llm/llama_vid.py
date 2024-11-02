@@ -34,11 +34,11 @@ class LLaMAVID(BaseModel):
     VIDEO_LLM = True
     # sample 1 fps from the video
 
-    def __init__(self, model_path='YanweiLi/llama-vid-7b-full-224-video-fps-1', **kwargs):
+    def __init__(self, model_path='YanweiLi/llama-vid-7b-full-224-video-fps-1', cache_dir='./cache', **kwargs):
         assert model_path is not None
         try:
-            from llamavid.model.builder import load_pretrained_model
-            from llava.mm_utils import get_model_name_from_path
+            from vlmeval.vlm.video_llm.llamavid.model.builder import load_pretrained_model
+            from vlmeval.vlm.video_llm.llava.mm_utils import get_model_name_from_path
         except Exception as err:
             logging.critical('Please install LLaMA-VID from https://github.com/dvlab-research/LLaMA-VID.')
             raise err
@@ -47,7 +47,7 @@ class LLaMAVID(BaseModel):
         model_name = get_model_name_from_path(model_path)
 
         eva_vit_g_url = 'https://storage.googleapis.com/sfr-vision-language-research/LAVIS/models/BLIP2/eva_vit_g.pth'
-        true_model_path = snapshot_download(model_path)
+        true_model_path = snapshot_download(model_path,cache_dir=cache_dir)
         eva_vit_path = os.path.join(true_model_path, 'eva_vit_g.pth')
         if not os.path.exists(eva_vit_path):
             download_file(eva_vit_g_url, eva_vit_path)

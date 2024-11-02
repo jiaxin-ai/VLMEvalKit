@@ -10,14 +10,14 @@ class Ovis(BaseModel):
     INSTALL_REQ = False
     INTERLEAVE = True
 
-    def __init__(self, model_path='AIDC-AI/Ovis1.5-Llama3-8B', **kwargs):
+    def __init__(self, model_path='AIDC-AI/Ovis1.5-Llama3-8B', cache_dir=None, **kwargs):
         assert model_path is not None
         # Recommend to install `transformers==4.43.2` and `torch==2.1.2`.
         self.model_path = model_path
         self.device = torch.cuda.current_device()
         self.dtype = torch.bfloat16
         self.model = AutoModelForCausalLM.from_pretrained(
-            self.model_path,
+            self.model_path, cache_dir=cache_dir,
             torch_dtype=self.dtype,
             multimodal_max_length=8192,
             trust_remote_code=True
@@ -142,14 +142,14 @@ class Ovis1_6(BaseModel):
     INSTALL_REQ = False
     INTERLEAVE = True
 
-    def __init__(self, model_path='AIDC-AI/Ovis1.6-Gemma2-9B', **kwargs):
+    def __init__(self, model_path='AIDC-AI/Ovis1.6-Gemma2-9B', cache_dir=None, **kwargs):
         assert model_path is not None
         # Recommend to install `python=3.10`, `transformers==4.44.2`, `torch==2.2.0`, and `numpy==1.24.3`
         self.model_path = model_path
         self.device = torch.cuda.current_device()
         self.dtype = torch.bfloat16
         self.model = AutoModelForCausalLM.from_pretrained(
-            self.model_path,
+            self.model_path, cache_dir=cache_dir,
             torch_dtype=self.dtype,
             multimodal_max_length=8192,
             trust_remote_code=True

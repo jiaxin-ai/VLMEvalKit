@@ -101,12 +101,12 @@ class VinternChat(BaseModel):
     INSTALL_REQ = False
     INTERLEAVE = True
 
-    def __init__(self, model_path='5CD-AI/Vintern-3B-beta', load_in_8bit=False, **kwargs):
+    def __init__(self, model_path='5CD-AI/Vintern-3B-beta', load_in_8bit=False, cache_dir=None, **kwargs):
         assert model_path is not None
         assert version_cmp(transformers.__version__, '4.36.2', 'ge')
 
         self.model_path = model_path
-        self.tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True, use_fast=False)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path, cache_dir=cache_dir, trust_remote_code=True, use_fast=False)
 
         # Regular expression to match the pattern 'Image' followed by a number, e.g. Image1
         self.pattern = r'Image(\d+)'
@@ -124,7 +124,7 @@ class VinternChat(BaseModel):
         device = torch.cuda.current_device()
         self.device = device
         self.model = AutoModel.from_pretrained(
-            model_path,
+            model_path, cache_dir=cache_dir,
             torch_dtype=torch.bfloat16,
             trust_remote_code=True,
             load_in_8bit=load_in_8bit).eval()

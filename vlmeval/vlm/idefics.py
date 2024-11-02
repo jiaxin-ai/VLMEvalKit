@@ -12,14 +12,14 @@ class IDEFICS(BaseModel):
     INSTALL_REQ = False
     INTERLEAVE = True
 
-    def __init__(self, model_path='HuggingFaceM4/idefics-9b-instruct', **kwargs):
+    def __init__(self, model_path='HuggingFaceM4/idefics-9b-instruct', cache_dir=None, **kwargs):
         assert osp.exists(model_path) or splitlen(model_path) == 2
         from transformers import IdeficsForVisionText2Text, AutoProcessor
 
         self.model = IdeficsForVisionText2Text.from_pretrained(
-            model_path, torch_dtype=torch.bfloat16, device_map='auto'
+            model_path, cache_dir=cache_dir, torch_dtype=torch.bfloat16, device_map='auto'
         )
-        self.processor = AutoProcessor.from_pretrained(model_path)
+        self.processor = AutoProcessor.from_pretrained(model_path, cache_dir=cache_dir)
         kwargs_default = {'max_new_tokens': 512}
         kwargs_default.update(kwargs)
         self.kwargs = kwargs_default
@@ -61,15 +61,15 @@ class IDEFICS2(BaseModel):
     INSTALL_REQ = True
     INTERLEAVE = True
 
-    def __init__(self, model_path='HuggingFaceM4/idefics2-8b', **kwargs):
+    def __init__(self, model_path='HuggingFaceM4/idefics2-8b', cache_dir=None, **kwargs):
         assert model_path is not None
         self.model_path = model_path
         if 'Idefics3' in self.model_path.lower():
             warnings.warn('Install transfomers from source: PR https://github.com/open-compass/VLMEvalKit/pull/379')
             warnings.warn('Reference: https://huggingface.co/HuggingFaceM4/Idefics3-8B-Llama3')
-        self.processor = AutoProcessor.from_pretrained(model_path)
+        self.processor = AutoProcessor.from_pretrained(model_path, cache_dir=cache_dir)
         model = AutoModelForVision2Seq.from_pretrained(
-            model_path,
+            model_path, cache_dir=cache_dir,
             torch_dtype=torch.bfloat16,
             _attn_implementation='flash_attention_2',
             device_map='cpu')

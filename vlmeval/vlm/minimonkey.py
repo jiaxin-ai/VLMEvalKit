@@ -150,15 +150,16 @@ class MiniMonkey(BaseModel):
     INSTALL_REQ = False
     INTERLEAVE = False
 
-    def __init__(self, model_path='mx262/MiniMonkey', **kwargs):
+    def __init__(self, model_path='mx262/MiniMonkey', cache_dir=None, **kwargs):
         assert model_path is not None
         self.model_path = model_path
         self.model_type = torch.bfloat16
         self.model = AutoModel.from_pretrained(
             self.model_path,
             low_cpu_mem_usage=True,
-            trust_remote_code=True).eval().to(self.model_type).cuda()
-        self.tokenizer = AutoTokenizer.from_pretrained(self.model_path, trust_remote_code=True, use_fast=False)
+            trust_remote_code=True,
+            cache_dir=cache_dir).eval().to(self.model_type).cuda()
+        self.tokenizer = AutoTokenizer.from_pretrained(self.model_path, cache_dir=cache_dir, trust_remote_code=True, use_fast=False)
 
         self.kwargs = kwargs
         warnings.warn(f'Following kwargs received: {self.kwargs}, will use as generation config. ')

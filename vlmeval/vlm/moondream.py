@@ -15,7 +15,7 @@ class Moondream1(BaseModel):
     INTERLEAVE = False
 
     def __init__(self,
-                 model_path='vikhyatk/moondream1',
+                 model_path='vikhyatk/moondream1', cache_dir=None,
                  **kwargs):
         try:
             from transformers import AutoModelForCausalLM, CodeGenTokenizerFast as Tokenizer
@@ -28,11 +28,11 @@ class Moondream1(BaseModel):
         assert osp.exists(model_path) or splitlen(model_path) == 2
 
         self.model = AutoModelForCausalLM.from_pretrained(
-            model_path,
+            model_path, cache_dir=cache_dir,
             trust_remote_code=True,
             torch_dtype=torch.float16,
             device_map='cuda')
-        self.tokenizer = Tokenizer.from_pretrained(model_path)
+        self.tokenizer = Tokenizer.from_pretrained(model_path, cache_dir=cache_dir)
 
         default_kwargs = dict(max_new_tokens=512)
         default_kwargs.update(kwargs)
@@ -97,7 +97,7 @@ class Moondream2(BaseModel):
 
     def __init__(self,
                  model_path="vikhyatk/moondream2",
-                 revision="2024-08-26",
+                 revision="2024-08-26", cache_dir=None,
                  **kwargs):
         try:
             from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -109,12 +109,12 @@ class Moondream2(BaseModel):
         assert osp.exists(model_path) or splitlen(model_path) == 2
 
         self.model = AutoModelForCausalLM.from_pretrained(
-            model_path,
+            model_path, cache_dir=cache_dir,
             trust_remote_code=True,
             torch_dtype=torch.float16,
             device_map='cuda',
             revision=revision)
-        self.tokenizer = AutoTokenizer.from_pretrained(model_path)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path, cache_dir=cache_dir)
 
         default_kwargs = dict(max_new_tokens=512)
         default_kwargs.update(kwargs)

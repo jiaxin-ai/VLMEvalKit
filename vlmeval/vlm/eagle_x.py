@@ -14,12 +14,12 @@ class Eagle(BaseModel):
     INTERLEAVE = True
 
     def __init__(self,
-                 model_path='NVEagle/Eagle-X5-7B',
+                 model_path='NVEagle/Eagle-X5-7B', cache_dir=None,
                  **kwargs):
         try:
-            from eagle.model.builder import load_pretrained_model
-            from eagle.utils import disable_torch_init
-            from eagle.mm_utils import get_model_name_from_path
+            from vlmeval.vlm.eagle.model.builder import load_pretrained_model
+            from vlmeval.vlm.eagle.utils import disable_torch_init
+            from vlmeval.vlm.eagle.mm_utils import get_model_name_from_path
         except Exception as e:
             logging.critical('''Please install eagle before using Eagle,
             you can install it from "https://github.com/NVlabs/EAGLE.git"''')
@@ -29,7 +29,7 @@ class Eagle(BaseModel):
         assert osp.exists(model_path) or splitlen(model_path) == 2
         model_name = get_model_name_from_path(model_path)
         self.tokenizer, self.model, self.image_processor, self.context_len = (
-            load_pretrained_model(model_path, None, model_name, False, False, device='cpu')
+            load_pretrained_model(model_path, None, model_name, False, False, device='cpu', cache_dir=cache_dir)
         )
         self.model.cuda().eval()
         self.conv_mode = 'vicuna_v1'

@@ -12,10 +12,10 @@ class TransCoreM(BaseModel):
     INSTALL_REQ = True
     INTERLEAVE = False
 
-    def load_pretrained_model(self, model_path, load_8bit=False, load_4bit=False, revision='main'):
-        from transcorem.model import TransCoreMQWenForCausalLM
-        from transcorem.constants import DEFAULT_IMAGE_PATCH_TOKEN, DEFAULT_IM_START_TOKEN, DEFAULT_IM_END_TOKEN
-        import transcorem.config_param as config_param
+    def load_pretrained_model(self, model_path, cache_dir=None, load_8bit=False, load_4bit=False, revision='main'):
+        from vlmeval.vlm.transcorem.model import TransCoreMQWenForCausalLM
+        from vlmeval.vlm.transcorem.constants import DEFAULT_IMAGE_PATCH_TOKEN, DEFAULT_IM_START_TOKEN, DEFAULT_IM_END_TOKEN
+        import vlmeval.vlm.transcorem.config_param as config_param
         kwargs = {'revision': revision}
         if load_8bit:
             kwargs['load_in_8bit'] = True
@@ -32,9 +32,9 @@ class TransCoreM(BaseModel):
 
         config_param.model_path = model_path
         tokenizer = AutoTokenizer.from_pretrained(
-            model_path, use_fast=False, revision=revision, trust_remote_code=True)
+            model_path, cache_dir=cache_dir, use_fast=False, revision=revision, trust_remote_code=True)
         model = TransCoreMQWenForCausalLM.from_pretrained(
-            model_path, low_cpu_mem_usage=True, trust_remote_code=True, **kwargs)
+            model_path, cache_dir=cache_dir, low_cpu_mem_usage=True, trust_remote_code=True, **kwargs)
 
         image_processor = None
         mm_use_im_start_end = getattr(model.config, 'mm_use_im_start_end', False)
@@ -61,6 +61,7 @@ class TransCoreM(BaseModel):
     def __init__(self,
                  root=None,
                  revision='main',
+                 cache_dir=None,
                  **kwargs):
 
         self.root = root
@@ -70,7 +71,7 @@ class TransCoreM(BaseModel):
         model_path = 'PCIResearch/TransCore-M'
         assert osp.exists(model_path) or splitlen(model_path) == 2
         self.tokenizer, self.model, self.image_processor, self.context_len = self.load_pretrained_model(
-            model_path=model_path, revision=revision)
+            model_path=model_path, revision=revision, cache_dir=cache_dir)
         self.model = self.model.cuda()
         print('==============conv_mode: transcorem_v1')
         self.conv_mode = 'transcorem_v1'

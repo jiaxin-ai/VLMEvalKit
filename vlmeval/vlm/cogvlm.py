@@ -11,12 +11,12 @@ class GLM4v(BaseModel):
     INSTALL_REQ = False
     INTERLEAVE = False
 
-    def __init__(self, model_path='THUDM/glm-4v-9b', **kwargs):
+    def __init__(self, model_path='THUDM/glm-4v-9b', cache_dir=None, **kwargs):
         assert model_path is not None
         self.model_path = model_path
-        self.tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path, cache_dir=cache_dir, trust_remote_code=True)
         self.model = AutoModelForCausalLM.from_pretrained(
-            model_path,
+            model_path, cache_dir=cache_dir,
             torch_dtype=torch.bfloat16,
             low_cpu_mem_usage=True,
             trust_remote_code=True
@@ -49,21 +49,21 @@ class CogVlm(BaseModel):
     INSTALL_REQ = False
     INTERLEAVE = False
 
-    def __init__(self, model_path='THUDM/cogvlm2-llama3-chat-19B', tokenizer_name=None, **kwargs):
+    def __init__(self, model_path='THUDM/cogvlm2-llama3-chat-19B', tokenizer_name=None, cache_dir=None, **kwargs):
         assert model_path is not None
         model = AutoModelForCausalLM.from_pretrained(
-            model_path,
+            model_path, cache_dir=cache_dir,
             torch_dtype=torch.bfloat16,
             trust_remote_code=True,
         ).to('cuda').eval()
 
         self.kwargs = kwargs
         if tokenizer_name:
-            tokenizer = LlamaTokenizer.from_pretrained(tokenizer_name)
+            tokenizer = LlamaTokenizer.from_pretrained(tokenizer_name, cache_dir=cache_dir)
             gen_kwargs = {'max_length': 2048, 'do_sample': False}
             self.end_text_token = '</s>'
         else:
-            tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
+            tokenizer = AutoTokenizer.from_pretrained(model_path, cache_dir=cache_dir, trust_remote_code=True)
             gen_kwargs = {'max_new_tokens': 2048, 'pad_token_id': 128002}
             self.end_text_token = '<|end_of_text|>'
         self.kwargs.update(gen_kwargs)

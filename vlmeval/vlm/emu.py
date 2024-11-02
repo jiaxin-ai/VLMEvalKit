@@ -12,7 +12,7 @@ class Emu(BaseModel):
     INTERLEAVE = True
 
     def __init__(self,
-                 model_path='BAAI/Emu2-Chat',
+                 model_path='BAAI/Emu2-Chat', cache_dir=None,
                  **kwargs):
 
         self.model_path = model_path
@@ -33,11 +33,12 @@ class Emu(BaseModel):
         torch.cuda.set_device(device_1)
         torch.cuda.set_device(device_2)
 
-        tokenizer = AutoTokenizer.from_pretrained(model_path)  # "BAAI/Emu2-Chat"
+        tokenizer = AutoTokenizer.from_pretrained(model_path, cache_dir=cache_dir)  # "BAAI/Emu2-Chat"
         self.tokenizer = tokenizer
         with init_empty_weights():
             model = AutoModelForCausalLM.from_pretrained(
                 model_path,  # "BAAI/Emu2-Chat"
+                cache_dir=cache_dir,
                 torch_dtype=torch.bfloat16,
                 low_cpu_mem_usage=True,
                 trust_remote_code=True)

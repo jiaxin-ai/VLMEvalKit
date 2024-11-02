@@ -14,13 +14,13 @@ class BunnyLLama3(BaseModel):
     INSTALL_REQ = False
     INTERLEAVE = False
 
-    def __init__(self, model_path='BAAI/Bunny-v1_1-Llama-3-8B-V', **kwargs):
+    def __init__(self, model_path='BAAI/Bunny-v1_1-Llama-3-8B-V', cache_dir=None, **kwargs):
         assert model_path is not None
         transformers.logging.set_verbosity_error()
         transformers.logging.disable_progress_bar()
         warnings.filterwarnings('ignore')
-        self.tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
-        self.model = AutoModelForCausalLM.from_pretrained(model_path, device_map='auto', trust_remote_code=True)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path, cache_dir=cache_dir, trust_remote_code=True)
+        self.model = AutoModelForCausalLM.from_pretrained(model_path, cache_dir=cache_dir, device_map='auto', trust_remote_code=True)
         self.kwargs = kwargs
 
     def use_custom_prompt(self, dataset):

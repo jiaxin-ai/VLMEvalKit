@@ -11,17 +11,17 @@ class mPLUG_Owl2(BaseModel):
     INSTALL_REQ = True
     INTERLEAVE = False
 
-    def __init__(self, model_path='MAGAer13/mplug-owl2-llama2-7b', **kwargs):
+    def __init__(self, model_path='MAGAer13/mplug-owl2-llama2-7b', cache_dir=None, **kwargs):
         try:
-            from mplug_owl2.model.builder import load_pretrained_model
-            from mplug_owl2.mm_utils import get_model_name_from_path
+            from vlmeval.vlm.mPLUG_Owl.mplug_owl2.model.builder import load_pretrained_model
+            from vlmeval.vlm.mPLUG_Owl.mplug_owl2.mm_utils import get_model_name_from_path
         except Exception as e:
             logging.critical('Please install mPLUG_Owl2 before using mPLUG_Owl2. ')
             raise e
 
         model_name = get_model_name_from_path(model_path)
         tokenizer, model, image_processor, context_len = load_pretrained_model(
-            model_path, None, model_name, load_8bit=False, load_4bit=False, device='cpu')
+            model_path, None, model_name, cache_dir=cache_dir, load_8bit=False, load_4bit=False, device='cpu')
 
         self.model = model.cuda()
         self.device = self.model.device

@@ -11,7 +11,7 @@ class InstructBLIP(BaseModel):
     INSTALL_REQ = True
     INTERLEAVE = False
 
-    def __init__(self, name):
+    def __init__(self, name, cache_dir=None):
         self.config_map = {
             'instructblip_7b': 'misc/blip2_instruct_vicuna7b.yaml',
             'instructblip_13b': 'misc/blip2_instruct_vicuna13b.yaml',
@@ -21,9 +21,9 @@ class InstructBLIP(BaseModel):
         config_root = osp.dirname(self.file_path)
 
         try:
-            from lavis.models import load_preprocess
+            from vlmeval.vlm.lavis.models import load_preprocess
             from omegaconf import OmegaConf
-            from lavis.common.registry import registry
+            from vlmeval.vlm.lavis.common.registry import registry
         except Exception as e:
             logging.critical('Please install lavis before using InstructBLIP. ')
             raise e
@@ -45,7 +45,7 @@ class InstructBLIP(BaseModel):
         self.kwargs = {'max_length': 512}
 
         preprocess_cfg = cfg.preprocess
-        vis_processors, _ = load_preprocess(preprocess_cfg)
+        vis_processors, _ = load_preprocess(preprocess_cfg, cache_dir=cache_dir)
         self.vis_processors = vis_processors
 
     def generate_inner(self, message, dataset=None):

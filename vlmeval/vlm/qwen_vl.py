@@ -12,14 +12,14 @@ class QwenVL(BaseModel):
     INSTALL_REQ = False
     INTERLEAVE = True
 
-    def __init__(self, model_path='Qwen/Qwen-VL', **kwargs):
+    def __init__(self, model_path='Qwen/Qwen-VL', cache_dir=None, **kwargs):
         assert model_path is not None
         self.model_path = model_path
-        tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
+        tokenizer = AutoTokenizer.from_pretrained(model_path, cache_dir=cache_dir, trust_remote_code=True)
         tokenizer.padding_side = 'left'
         tokenizer.pad_token_id = tokenizer.eod_id
         self.tokenizer = tokenizer
-        self.model = AutoModelForCausalLM.from_pretrained(model_path, device_map='cuda', trust_remote_code=True).eval()
+        self.model = AutoModelForCausalLM.from_pretrained(model_path, cache_dir=cache_dir, device_map='cuda', trust_remote_code=True).eval()
         default_kwargs = dict(
             do_sample=False,
             num_beams=1,
@@ -78,11 +78,11 @@ class QwenVLChat(BaseModel):
     INSTALL_REQ = False
     INTERLEAVE = True
 
-    def __init__(self, model_path='Qwen/Qwen-VL-Chat', **kwargs):
+    def __init__(self, model_path='Qwen/Qwen-VL-Chat', cache_dir=None, **kwargs):
         assert model_path is not None
         self.model_path = model_path
-        self.tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
-        self.model = AutoModelForCausalLM.from_pretrained(model_path, device_map='cuda', trust_remote_code=True).eval()
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path, cache_dir=cache_dir, trust_remote_code=True)
+        self.model = AutoModelForCausalLM.from_pretrained(model_path, cache_dir=cache_dir, device_map='cuda', trust_remote_code=True).eval()
         torch.cuda.empty_cache()
         self.kwargs = kwargs
         warnings.warn(f'Following kwargs received: {self.kwargs}, will use as generation config. ')

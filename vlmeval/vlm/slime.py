@@ -17,18 +17,18 @@ class SliME(BaseModel):
     DEFAULT_IMAGE_TOKEN = '<image>'
     IMAGE_TOKEN_INDEX = -200
 
-    def __init__(self, model_path='yifanzhang114/SliME-Llama3-8B', **kwargs):
+    def __init__(self, model_path='yifanzhang114/SliME-Llama3-8B', cache_dir=None, **kwargs):
         assert model_path is not None
         try:
-            from llava.model.builder import load_pretrained_model
-            from llava.conversation import conv_templates
-            from llava.mm_utils import get_model_name_from_path, tokenizer_image_token
+            from vlmeval.vlm.LLaVA_.llava.model.builder import load_pretrained_model
+            from vlmeval.vlm.LLaVA_.llava.conversation import conv_templates
+            from vlmeval.vlm.LLaVA_.llava.mm_utils import get_model_name_from_path, tokenizer_image_token
         except Exception as err:
             logging.critical('Please install requirements on https://github.com/yfzhang114/SliME before using SliME')
             raise err
 
         model_name = get_model_name_from_path(model_path)
-        tokenizer, model, image_processor, _ = load_pretrained_model(model_path, None, model_name, device_map=None)
+        tokenizer, model, image_processor, _ = load_pretrained_model(model_path, None, model_name, device_map=None, cache_dir=cache_dir)
         model.cuda().eval()
         model.tie_weights()
 

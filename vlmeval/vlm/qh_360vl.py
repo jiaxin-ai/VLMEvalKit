@@ -13,15 +13,15 @@ class QH_360VL(BaseModel):
     INSTALL_REQ = False
     INTERLEAVE = False
 
-    def __init__(self, model_path='qihoo360/360VL-70B', **kwargs):
+    def __init__(self, model_path='qihoo360/360VL-70B', cache_dir=None, **kwargs):
         assert model_path is not None
         self.model_path = model_path
-        self.tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True, cache_dir=cache_dir)
         self.model = AutoModelForCausalLM.from_pretrained(model_path,
                                                           torch_dtype=torch.float16,
                                                           low_cpu_mem_usage=True,
                                                           device_map='auto',
-                                                          trust_remote_code=True).eval()
+                                                          trust_remote_code=True, cache_dir=cache_dir).eval()
         vision_tower = self.model.get_vision_tower()
         vision_tower.load_model()
         vision_tower.to(device='cuda', dtype=torch.float16)

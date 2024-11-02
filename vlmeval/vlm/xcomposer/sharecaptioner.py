@@ -10,11 +10,11 @@ class ShareCaptioner(BaseModel):
     INSTALL_REQ = False
     INTERLEAVE = False
 
-    def __init__(self, model_path='Lin-Chen/ShareCaptioner', **kwargs):
+    def __init__(self, model_path='Lin-Chen/ShareCaptioner', cache_dir=None, **kwargs):
         assert model_path is not None
-        tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
+        tokenizer = AutoTokenizer.from_pretrained(model_path, cache_dir=cache_dir, trust_remote_code=True)
         self.model = AutoModelForCausalLM.from_pretrained(
-            model_path, device_map='cuda', trust_remote_code=True).eval()
+            model_path, cache_dir=cache_dir, device_map='cuda', trust_remote_code=True).eval()
         self.model.tokenizer = tokenizer
         self.model.cuda()
         self.model.half()

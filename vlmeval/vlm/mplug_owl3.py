@@ -141,14 +141,15 @@ class mPLUG_Owl3(BaseModel):
     INTERLEAVE = True
     INSTALL_REQ_TXT = 'https://github.com/X-PLUG/mPLUG-Owl/blob/main/mPLUG-Owl3/requirements.txt'
 
-    def __init__(self, model_path=None, **kwargs):
+    def __init__(self, model_path=None, cache_dir=None, **kwargs):
         assert model_path is not None
         self.tokenizer = AutoTokenizer.from_pretrained(
-            model_path
+            model_path, cache_dir=cache_dir
         )
 
         self.model = AutoModel.from_pretrained(
             model_path,
+            cache_dir=cache_dir,
             attn_implementation='sdpa',
             torch_dtype=torch.half,
             trust_remote_code=True

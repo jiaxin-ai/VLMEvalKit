@@ -11,7 +11,7 @@ class PandaGPT(BaseModel):
     INSTALL_REQ = True
     INTERLEAVE = False
 
-    def __init__(self, name, root=None, **kwargs):
+    def __init__(self, name, root=None, cache_dir=None, **kwargs):
         if root is None:
             raise ValueError('Please set `root` to PandaGPT code directory, which is cloned from here: ')
 
@@ -19,7 +19,7 @@ class PandaGPT(BaseModel):
         self.name = name
         sys.path.append(osp.join(root, 'code'))
         try:
-            from model.openllama import OpenLLAMAPEFTModel
+            from vlmeval.vlm.PandaGPT.code.model.openllama import OpenLLAMAPEFTModel
         except Exception as e:
             logging.critical(
                 'Please first install PandaGPT and set the root path to use PandaGPT, '

@@ -17,7 +17,7 @@ class RBDash(BaseModel):
     INSTALL_REQ = True
     INTERLEAVE = False
 
-    def __init__(self, model_path, root=None, conv_mode='qwen', **kwargs):
+    def __init__(self, model_path, root=None, conv_mode='qwen', cache_dir=None, **kwargs):
         from huggingface_hub import snapshot_download
         if root is None:
             raise ValueError('Please set `root` to RBDash code directory, \

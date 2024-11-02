@@ -12,12 +12,12 @@ class Parrot(BaseModel):
     INSTALL_REQ = False
     INTERLEAVE = False
 
-    def __init__(self, model_path='AIDC-AI/Parrot-7B', **kwargs):
+    def __init__(self, model_path='AIDC-AI/Parrot-7B', cache_dir=None, **kwargs):
         try:
-            from parrot.model.parrot_arch import ParrotMetaForCausalLM
-            from parrot.utils.constants import DEFAULT_IMAGE_TOKEN, BEGIN_LINE, END_LINE
-            from parrot.model.conversation_formatter import ConversationFormatter
-            from parrot.utils.mm_utils import process_images
+            from vlmeval.vlm.Parrot.parrot.model.parrot_arch import ParrotMetaForCausalLM
+            from vlmeval.vlm.Parrot.parrot.utils.constants import DEFAULT_IMAGE_TOKEN, BEGIN_LINE, END_LINE
+            from vlmeval.vlm.Parrot.parrot.model.conversation_formatter import ConversationFormatter
+            from vlmeval.vlm.Parrot.parrot.utils.mm_utils import process_images
         except Exception as e:
             logging.critical('Please install Parrot before using Parrot')
             logging.critical('Please install Parrot from https://github.com/AIDC-AI/Parrot')
@@ -34,7 +34,7 @@ class Parrot(BaseModel):
         try:
             model_name = 'parrot_qwen2'
             model, tokenizer, conversation_formatter = ParrotMetaForCausalLM.build(
-                model_name, model_path, mm_vision_tower='openai/clip-vit-large-patch14-336'
+                model_name, model_path, mm_vision_tower='openai/clip-vit-large-patch14-336',cache_dir=cache_dir
             )
             self.model = model.cuda()
             self.vision_tower = self.model.get_vision_tower()

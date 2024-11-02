@@ -18,10 +18,10 @@ class PLLaVA(BaseModel):
     INTERLEAVE = False
     VIDEO_LLM = True
 
-    def __init__(self, model_path='ermu2001/pllava-13b', dir_root=None, **kwargs):
+    def __init__(self, model_path='ermu2001/pllava-13b', dir_root=None, cache_dir=None, **kwargs):
         sys.path.append(dir_root)
         try:
-            from tasks.eval.model_utils import load_pllava
+            from vlmeval.vlm.video_llm.tasks.eval.model_utils import load_pllava
         except Exception as err:
             logging.critical(
                 'Please first install requirements and set the root path to use PLLaVA. \
@@ -37,7 +37,7 @@ class PLLaVA(BaseModel):
         self.RESOLUTION = 672
         self.model_path = model_path
         # remind that, once the model goes larger (30B+) may cause the memory to be heavily used up. Even Tearing Nodes.
-        weight_dir = snapshot_download(model_path)
+        weight_dir = snapshot_download(model_path, cache_dir=cache_dir)
         self.model, self.processor = load_pllava(
             model_path, num_frames=self.nframe, use_lora=self.use_lora,
             weight_dir=weight_dir, lora_alpha=self.lora_alpha, pooling_shape=self.pooling_shape

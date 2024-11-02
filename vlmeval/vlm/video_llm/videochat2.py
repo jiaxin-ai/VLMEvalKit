@@ -63,7 +63,7 @@ class VideoChat2_HD(BaseModel):
     VIDEO_LLM = True
 
     def __init__(self, model_path='OpenGVLab/VideoChat2_HD_stage4_Mistral_7B',
-                 root='./Ask-Anything', config_file='./configs/videochat2_hd.json',
+                 root='./Ask-Anything', config_file='./configs/videochat2_hd.json', cache_dir='./cache',
                  **kwargs):
         self.config_file = config_file
         self.root = root
@@ -113,13 +113,13 @@ class VideoChat2_HD(BaseModel):
 
         hf_token = os.environ.get('HUGGINGFACE_TOKEN')
         huggingface_hub.login(hf_token)
-        videochat2_model_path = snapshot_download(repo_id=cfg.model.videochat2_model_path, repo_type='model')
+        videochat2_model_path = snapshot_download(repo_id=cfg.model.videochat2_model_path, repo_type='model', cache_dir=cache_dir)
         cfg.model.videochat2_model_path = osp.join(videochat2_model_path, 'videochat2_mistral_7b_stage2.pth')
 
-        mistral_model_path = snapshot_download(repo_id=cfg.model.mistral_model_path, repo_type='model')
+        mistral_model_path = snapshot_download(repo_id=cfg.model.mistral_model_path, repo_type='model', cache_dir=cache_dir)
         cfg.model.mistral_model_path = mistral_model_path
 
-        vit_blip_model_path = snapshot_download(repo_id=cfg.model.vit_blip_model_path, repo_type='model')
+        vit_blip_model_path = snapshot_download(repo_id=cfg.model.vit_blip_model_path, repo_type='model', cache_dir=cache_dir)
         cfg.model.vit_blip_model_path = osp.join(vit_blip_model_path, 'umt_l16_qformer.pth')
 
         model = VideoChat2_it_hd_mistral(config=cfg.model)
@@ -132,7 +132,7 @@ class VideoChat2_HD(BaseModel):
             ]
         )
         model.mistral_model = get_peft_model(model.mistral_model, peft_config)
-        stage4_model_path = snapshot_download(repo_id=model_path, repo_type='model')
+        stage4_model_path = snapshot_download(repo_id=model_path, repo_type='model', cache_dir=cache_dir)
         state_dict = torch.load(osp.join(stage4_model_path, 'videochat2_hd_mistral_7b_stage4.pth'), 'cuda')
 
         if 'model' in state_dict.keys():

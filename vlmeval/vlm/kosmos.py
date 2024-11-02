@@ -15,7 +15,7 @@ class Kosmos2(BaseModel):
     INTERLEAVE = True
 
     def __init__(self,
-                 model_path='microsoft/kosmos-2-patch14-224',
+                 model_path='microsoft/kosmos-2-patch14-224', cache_dir=None,
                  **kwargs):
         try:
             from transformers import AutoProcessor, Kosmos2ForConditionalGeneration
@@ -26,10 +26,10 @@ class Kosmos2(BaseModel):
         assert osp.exists(model_path) or splitlen(model_path) == 2
 
         self.model = (
-            Kosmos2ForConditionalGeneration.from_pretrained(model_path, torch_dtype=torch.float16)
+            Kosmos2ForConditionalGeneration.from_pretrained(model_path, cache_dir=cache_dir, torch_dtype=torch.float16)
             .to(torch.device('cuda'))
         )
-        self.processor = AutoProcessor.from_pretrained(model_path)
+        self.processor = AutoProcessor.from_pretrained(model_path, cache_dir=cache_dir)
 
         default_kwargs = dict(
             max_new_tokens=512,

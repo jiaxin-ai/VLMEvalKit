@@ -1,3 +1,5 @@
+from linecache import cache
+
 import torch
 from PIL import Image
 from abc import abstractproperty
@@ -14,14 +16,14 @@ class VILA(BaseModel):
     INTERLEAVE = True
 
     def __init__(self,
-                 model_path='Efficient-Large-Model/Llama-3-VILA1.5-8b',
+                 model_path='Efficient-Large-Model/Llama-3-VILA1.5-8b', cache_dir=None,
                  **kwargs):
         try:
-            from llava.model.builder import load_pretrained_model
-            from llava.mm_utils import get_model_name_from_path
-            from llava.mm_utils import process_images, tokenizer_image_token, KeywordsStoppingCriteria
-            from llava.constants import IMAGE_TOKEN_INDEX, DEFAULT_IMAGE_TOKEN, DEFAULT_IM_START_TOKEN, DEFAULT_IM_END_TOKEN # noqa E501
-            from llava.conversation import conv_templates, SeparatorStyle
+            from vlmeval.vlm.LLaVA_.llava.model.builder import load_pretrained_model
+            from vlmeval.vlm.LLaVA_.llava.mm_utils import get_model_name_from_path
+            from vlmeval.vlm.LLaVA_.llava.mm_utils import process_images, tokenizer_image_token, KeywordsStoppingCriteria
+            from vlmeval.vlm.LLaVA_.llava.constants import IMAGE_TOKEN_INDEX, DEFAULT_IMAGE_TOKEN, DEFAULT_IM_START_TOKEN, DEFAULT_IM_END_TOKEN # noqa E501
+            from vlmeval.vlm.LLaVA_.llava.conversation import conv_templates, SeparatorStyle
         except Exception as err:
             logging.critical('Please install VILA before using VILA')
             logging.critical('Please install VILA from https://github.com/NVlabs/VILA')
@@ -40,7 +42,8 @@ class VILA(BaseModel):
                 model_base=None,
                 model_name=model_name,
                 device='cpu',
-                device_map='cpu'
+                device_map='cpu',
+                cache_dir=cache_dir,
             )
         except Exception as err:
             logging.critical('Error loading VILA model: ')

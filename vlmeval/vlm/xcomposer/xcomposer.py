@@ -25,12 +25,12 @@ class XComposer(BaseModel):
     INSTALL_REQ = False
     INTERLEAVE = False
 
-    def __init__(self, model_path='internlm/internlm-xcomposer-vl-7b', **kwargs):
+    def __init__(self, model_path='internlm/internlm-xcomposer-vl-7b', cache_dir=None, **kwargs):
         assert model_path is not None
         self.model_path = model_path
 
-        model = AutoModel.from_pretrained(self.model_path, device_map='cpu', trust_remote_code=True).cuda().eval()
-        tokenizer = AutoTokenizer.from_pretrained(self.model_path, trust_remote_code=True)
+        model = AutoModel.from_pretrained(self.model_path, cache_dir=cache_dir, device_map='cpu', trust_remote_code=True).cuda().eval()
+        tokenizer = AutoTokenizer.from_pretrained(self.model_path, cache_dir=cache_dir, trust_remote_code=True)
         model.tokenizer = tokenizer
         self.model = model
         self.device = self.model.internlm_model.model.embed_tokens.weight.device

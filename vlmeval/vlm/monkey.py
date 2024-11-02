@@ -10,11 +10,11 @@ class Monkey(BaseModel):
     INSTALL_REQ = False
     INTERLEAVE = False
 
-    def __init__(self, model_path='echo840/Monkey', **kwargs):
+    def __init__(self, model_path='echo840/Monkey', cache_dir=None, **kwargs):
         assert model_path is not None
         self.model_path = model_path
-        self.tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
-        model = AutoModelForCausalLM.from_pretrained(model_path, device_map='cpu', trust_remote_code=True).eval()
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path, cache_dir=cache_dir, trust_remote_code=True)
+        model = AutoModelForCausalLM.from_pretrained(model_path, cache_dir=cache_dir, device_map='cpu', trust_remote_code=True).eval()
         self.model = model.cuda()
         self.kwargs = kwargs
         warnings.warn(f'Following kwargs received: {self.kwargs}, will use as generation config. ')
@@ -88,11 +88,11 @@ class MonkeyChat(BaseModel):
     INSTALL_REQ = False
     INTERLEAVE = False
 
-    def __init__(self, model_path='echo840/Monkey-Chat', **kwargs):
+    def __init__(self, model_path='echo840/Monkey-Chat', cache_dir=None, **kwargs):
         assert model_path is not None
         self.model_path = model_path
-        self.tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
-        model = AutoModelForCausalLM.from_pretrained(model_path, device_map='cpu', trust_remote_code=True).eval()
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path, cache_dir=cache_dir, trust_remote_code=True)
+        model = AutoModelForCausalLM.from_pretrained(model_path, cache_dir=cache_dir, device_map='cpu', trust_remote_code=True).eval()
         self.model = model.cuda()
         self.kwargs = kwargs
 

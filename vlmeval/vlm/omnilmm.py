@@ -1,5 +1,4 @@
 import torch
-from PIL import Image
 from transformers import AutoTokenizer
 
 from .base import BaseModel
@@ -13,17 +12,17 @@ DEFAULT_IM_START_TOKEN = '<im_start>'
 DEFAULT_IM_END_TOKEN = '<im_end>'
 
 
-def init_omni_lmm(model_path):
-    from omnilmm.model.omnilmm import OmniLMMForCausalLM
-    from omnilmm.utils import disable_torch_init
-    from omnilmm.model.utils import build_transform
+def init_omni_lmm(model_path, cache_dir=None):
+    from vlmeval.vlm.OmniLMM.omnilmm.model import OmniLMMForCausalLM
+    # from vlmeval.vlm.OmniLMM.omnilmm import disable_torch_init
+    from vlmeval.vlm.OmniLMM.omnilmm.model.utils import build_transform
 
     torch.backends.cuda.matmul.allow_tf32 = True
-    disable_torch_init()
-    tokenizer = AutoTokenizer.from_pretrained(model_path, model_max_length=2048)
+    # disable_torch_init()
+    tokenizer = AutoTokenizer.from_pretrained(model_path, cache_dir=cache_dir, model_max_length=2048)
 
     model = OmniLMMForCausalLM.from_pretrained(
-        model_path, tune_clip=True, torch_dtype=torch.bfloat16, device_map='cpu'
+        model_path, cache_dir=cache_dir, tune_clip=True, torch_dtype=torch.bfloat16, device_map='cpu'
     )
     model = model.to(device='cuda', dtype=torch.bfloat16)
 
@@ -71,7 +70,7 @@ def expand_question_into_multimodal(
 
 
 def wrap_question_for_omni_lmm(question, image_token_len, tokenizer):
-    from omnilmm.train.train_utils import omni_preprocess
+    from vlmeval.vlm.OmniLMM.omnilmm.train.train_utils import omni_preprocess
 
     question = expand_question_into_multimodal(
         question,
@@ -95,9 +94,9 @@ class OmniLMM12B(BaseModel):
     INSTALL_REQ = True
     INTERLEAVE = False
 
-    def __init__(self, model_path, root, **kwargs) -> None:
+    def __init__(self, model_path, root, cache_dir=None, **kwargs) -> None:
         sys.path.append(root)
-        model, img_processor, image_token_len, tokenizer = init_omni_lmm(model_path)
+        model, img_processor, image_token_len, tokenizer = init_omni_lmm(model_path, cache_dir=cache_dir)
         self.model = model
         self.image_token_len = image_token_len
         self.image_transform = img_processor

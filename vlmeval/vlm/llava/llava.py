@@ -14,10 +14,10 @@ class LLaVA(BaseModel):
     INSTALL_REQ = True
     INTERLEAVE = True
 
-    def __init__(self, model_path="liuhaotian/llava_v1.5_7b", **kwargs):
+    def __init__(self, model_path="liuhaotian/llava_v1.5_7b", cache_dir=None, **kwargs):
         try:
-            from llava.model.builder import load_pretrained_model
-            from llava.mm_utils import get_model_name_from_path
+            from vlmeval.vlm.LLaVA_.llava.model.builder import load_pretrained_model
+            from vlmeval.vlm.LLaVA_.llava.mm_utils import get_model_name_from_path
         except Exception as err:
             logging.critical(
                 "Please install llava from https://github.com/haotian-liu/LLaVA"
@@ -46,6 +46,7 @@ class LLaVA(BaseModel):
                     model_name=model_name,
                     device="cpu",
                     device_map="cpu",
+                    cache_dir=cache_dir,
                 )
             )
         except Exception as err:
@@ -131,12 +132,12 @@ class LLaVA(BaseModel):
         return text, images
 
     def chat_inner(self, message, dataset=None):
-        from llava.mm_utils import (
+        from vlmeval.vlm.LLaVA_.llava.mm_utils import (
             process_images,
             tokenizer_image_token,
             KeywordsStoppingCriteria,
         )
-        from llava.constants import IMAGE_TOKEN_INDEX
+        from vlmeval.vlm.LLaVA_.llava.constants import IMAGE_TOKEN_INDEX
 
         prompt = self.system_prompt
         images = []
@@ -180,12 +181,12 @@ class LLaVA(BaseModel):
         return output
 
     def generate_inner(self, message, dataset=None):
-        from llava.mm_utils import (
+        from vlmeval.vlm.LLaVA_.llava.mm_utils import (
             process_images,
             tokenizer_image_token,
             KeywordsStoppingCriteria,
         )
-        from llava.constants import IMAGE_TOKEN_INDEX
+        from vlmeval.vlm.LLaVA_.llava.constants import IMAGE_TOKEN_INDEX
 
         # Support interleave text and image
         content, images = self.concat_tilist(message)
@@ -232,7 +233,7 @@ class LLaVA_Next(BaseModel):
     INSTALL_REQ = False
     INTERLEAVE = True
 
-    def __init__(self, model_path="llava-hf/llava-v1.6-vicuna-7b-hf", **kwargs):
+    def __init__(self, model_path="llava-hf/llava-v1.6-vicuna-7b-hf", cache_dir=None, **kwargs):
         import transformers
         from transformers import (
             LlavaNextProcessor,
@@ -244,12 +245,12 @@ class LLaVA_Next(BaseModel):
         self.model_path = model_path
         if "34b" in model_path.lower():
             self.processor = LlavaNextProcessor.from_pretrained(
-                self.model_path, use_fast=False
+                self.model_path, cache_dir=cache_dir, use_fast=False
             )
         elif "interleave" in model_path.lower():
-            self.processor = AutoProcessor.from_pretrained(self.model_path)
+            self.processor = AutoProcessor.from_pretrained(self.model_path, cache_dir=cache_dir)
         else:
-            self.processor = LlavaNextProcessor.from_pretrained(self.model_path)
+            self.processor = LlavaNextProcessor.from_pretrained(self.model_path, cache_dir=cache_dir)
         flash_attn_flag = False
         try:
             import flash_attn
@@ -261,14 +262,14 @@ class LLaVA_Next(BaseModel):
         if flash_attn_flag:
             if "interleave" in model_path.lower():
                 model = LlavaForConditionalGeneration.from_pretrained(
-                    self.model_path,
+                    self.model_path, cache_dir=cache_dir,
                     torch_dtype=torch.float16,
                     low_cpu_mem_usage=True,
                     use_flash_attention_2=True,
                 )
             else:
                 model = LlavaNextForConditionalGeneration.from_pretrained(
-                    self.model_path,
+                    self.model_path, cache_dir=cache_dir,
                     torch_dtype=torch.float16,
                     low_cpu_mem_usage=True,
                     use_flash_attention_2=True,
@@ -276,11 +277,11 @@ class LLaVA_Next(BaseModel):
         else:
             if "interleave" in model_path.lower():
                 model = LlavaForConditionalGeneration.from_pretrained(
-                    self.model_path, torch_dtype=torch.float16, low_cpu_mem_usage=True
+                    self.model_path, cache_dir=cache_dir, torch_dtype=torch.float16, low_cpu_mem_usage=True
                 )
             else:
                 model = LlavaNextForConditionalGeneration.from_pretrained(
-                    self.model_path, torch_dtype=torch.float16, low_cpu_mem_usage=True
+                    self.model_path, cache_dir=cache_dir, torch_dtype=torch.float16, low_cpu_mem_usage=True
                 )
 
         model = model.eval()
@@ -411,12 +412,12 @@ class LLaVA_Next2(BaseModel):
     DEFAULT_IMAGE_TOKEN = "<image>"
     IMAGE_TOKEN_INDEX = -200
 
-    def __init__(self, model_path="lmms-lab/llama3-llava-next-8b", **kwargs):
+    def __init__(self, model_path="lmms-lab/llama3-llava-next-8b", cache_dir=None, **kwargs):
         assert model_path is not None
         try:
-            from llava.model.builder import load_pretrained_model
-            from llava.conversation import conv_templates, SeparatorStyle
-            from llava.mm_utils import (
+            from vlmeval.vlm.LLaVA_.llava.model.builder import load_pretrained_model
+            from vlmeval.vlm.LLaVA_.llava.conversation import conv_templates, SeparatorStyle
+            from vlmeval.vlm.LLaVA_.llava.mm_utils import (
                 get_model_name_from_path,
                 tokenizer_image_token,
                 KeywordsStoppingCriteria,
@@ -429,7 +430,7 @@ class LLaVA_Next2(BaseModel):
 
         model_name = get_model_name_from_path(model_path)
         tokenizer, model, image_processor, _ = load_pretrained_model(
-            model_path, None, model_name, device_map=None
+            model_path, None, model_name, device_map=None, cache_dir=cache_dir
         )
         model.cuda().eval()
         model.tie_weights()
@@ -530,12 +531,12 @@ class LLaVA_OneVision(BaseModel):
         device_map["lm_head"] = last_gpu
         return device_map
 
-    def __init__(self, model_path="lmms-lab/llava-onevision-qwen2-7b-si", **kwargs):
+    def __init__(self, model_path="lmms-lab/llava-onevision-qwen2-7b-si", cache_dir=None, **kwargs):
         assert model_path is not None
         try:
-            from llava.model.builder import load_pretrained_model
-            from llava.conversation import conv_templates, SeparatorStyle
-            from llava.mm_utils import (
+            from vlmeval.vlm.LLaVA_.llava.model.builder import load_pretrained_model
+            from vlmeval.vlm.LLaVA_.llava.conversation import conv_templates, SeparatorStyle
+            from vlmeval.vlm.LLaVA_.llava.mm_utils import (
                 get_model_name_from_path,
                 process_images,
                 tokenizer_image_token,
@@ -575,6 +576,7 @@ class LLaVA_OneVision(BaseModel):
                     model_name,
                     device_map="auto",
                     overwrite_config=overwrite_config,
+                    cache_dir=cache_dir,
                 )
             else:
                 tokenizer, model, image_processor, _ = load_pretrained_model(
@@ -583,6 +585,7 @@ class LLaVA_OneVision(BaseModel):
                     model_name,
                     device_map="cpu",
                     overwrite_config=overwrite_config,
+                    cache_dir=cache_dir
                 )
                 model.cuda()
         else:
@@ -592,6 +595,7 @@ class LLaVA_OneVision(BaseModel):
                 model_name,
                 device_map=device_map,
                 overwrite_config=overwrite_config,
+                cache_dir=cache_dir,
             )
         model.eval()
         model.tie_weights()

@@ -17,19 +17,19 @@ class VideoChatGPT(BaseModel):
     VIDEO_LLM = True
     # sample a video in 100 frames
 
-    def __init__(self, model_path='MBZUAI/Video-ChatGPT-7B', dir_root=None, **kwargs):
+    def __init__(self, model_path='MBZUAI/Video-ChatGPT-7B', dir_root=None, cache_dir='./cache', **kwargs):
         assert model_path is not None
         sys.path.append(dir_root)
         try:
-            from video_chatgpt.eval.model_utils import initialize_model
+            from vlmeval.vlm.video_llm.video_chatgpt.eval.model_utils import initialize_model
         except Exception as err:
             logging.critical(
                 'Please first install requirements and set the root path to use Video-ChatGPT. \
                 Follow the instructions at https://github.com/mbzuai-oryx/Video-ChatGPT.'
             )
             raise err
-        base_model_path = snapshot_download('mmaaz60/LLaVA-7B-Lightening-v1-1')
-        projection_path = snapshot_download(model_path)
+        base_model_path = snapshot_download('mmaaz60/LLaVA-7B-Lightening-v1-1',cache_dir=cache_dir)
+        projection_path = snapshot_download(model_path,cache_dir=cache_dir)
         projection_name = 'video_chatgpt-7B.bin'
         projection_path = os.path.join(projection_path, projection_name)
 

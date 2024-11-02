@@ -17,6 +17,7 @@ class OpenFlamingo(BaseModel):
                  name,
                  mpt_pth=None,
                  ckpt_pth=None,
+                 cache_dir=None,
                  **kwargs):
 
         if mpt_pth is None:
@@ -41,7 +42,7 @@ class OpenFlamingo(BaseModel):
             elif splitlen(ckpt_pth, '/') == 2:
                 cache_path = get_cache_path(ckpt_pth)
                 if cache_path is None:
-                    snapshot_download(ckpt_pth)
+                    snapshot_download(ckpt_pth, cache_dir=cache_dir)
                 cache_path = get_cache_path(ckpt_pth)
                 if cache_path is None:
                     raise ValueError(f'Directory {cache_path} does not exist. ')

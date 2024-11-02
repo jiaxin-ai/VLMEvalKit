@@ -77,6 +77,7 @@ class Qwen2VLChat(Qwen2VLPromptMixin, BaseModel):
         use_custom_prompt: bool = True,
         system_prompt: str | None = None,
         verbose: bool = True,
+        cache_dir=None,
     ):
         super().__init__(use_custom_prompt=use_custom_prompt)
         self.min_pixels = min_pixels
@@ -97,7 +98,7 @@ class Qwen2VLChat(Qwen2VLPromptMixin, BaseModel):
 
         assert model_path is not None
         self.model_path = model_path
-        self.processor = Qwen2VLProcessor.from_pretrained(model_path)
+        self.processor = Qwen2VLProcessor.from_pretrained(model_path, cache_dir=cache_dir)
 
         gpu_mems = get_gpu_memory()
         max_gpu_mem = max(gpu_mems) if gpu_mems != [] else -1
@@ -108,16 +109,16 @@ class Qwen2VLChat(Qwen2VLPromptMixin, BaseModel):
             assert world_size == 1, 'Only support world_size == 1 when AUTO_SPLIT is set for non-72B Qwen2-VL'
             # Will Use All GPUs to run one model
             self.model = Qwen2VLForConditionalGeneration.from_pretrained(
-                model_path, torch_dtype='auto', device_map='auto', attn_implementation='flash_attention_2'
+                model_path, cache_dir=cache_dir, torch_dtype='auto', device_map='auto', attn_implementation='flash_attention_2'
             )
         elif '72b' not in self.model_path.lower():
             self.model = Qwen2VLForConditionalGeneration.from_pretrained(
-                model_path, torch_dtype='auto', device_map='cpu', attn_implementation='flash_attention_2'
+                model_path, cache_dir=cache_dir, torch_dtype='auto', device_map='cpu', attn_implementation='flash_attention_2'
             )
             self.model.cuda().eval()
         else:
             self.model = Qwen2VLForConditionalGeneration.from_pretrained(
-                model_path, torch_dtype='auto', device_map=split_model(), attn_implementation='flash_attention_2'
+                model_path, cache_dir=cache_dir, torch_dtype='auto', device_map=split_model(), attn_implementation='flash_attention_2'
             )
             self.model.eval()
 

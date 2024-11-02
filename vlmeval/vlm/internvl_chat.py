@@ -151,6 +151,7 @@ class InternVLChat(BaseModel):
                  load_in_8bit=False,
                  cot_prompt=False,
                  version='V1.0',
+                 cache_dir=None,
                  **kwargs):
 
         assert model_path is not None
@@ -158,7 +159,7 @@ class InternVLChat(BaseModel):
 
         self.cot_prompt = cot_prompt
         self.model_path = model_path
-        self.tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True, use_fast=False)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path, cache_dir=cache_dir, trust_remote_code=True, use_fast=False)
 
         # Regular expression to match the pattern 'Image' followed by a number, e.g. Image1
         self.pattern = r'Image(\d+)'
@@ -177,7 +178,7 @@ class InternVLChat(BaseModel):
         if auto_split_flag() and listinstr(['InternVL2-8B', 'InternVL2-26B', 'InternVL2-40B'], model_path):
             device_map = split_model(model_path.split('/')[-1])
             self.model = AutoModel.from_pretrained(
-                model_path,
+                model_path, cache_dir=cache_dir,
                 torch_dtype=torch.bfloat16,
                 load_in_8bit=load_in_8bit,
                 trust_remote_code=True,
@@ -187,7 +188,7 @@ class InternVLChat(BaseModel):
         elif listinstr(['InternVL2-Llama3-76B'], model_path):
             device_map = split_model(model_path.split('/')[-1])
             self.model = AutoModel.from_pretrained(
-                model_path,
+                model_path, cache_dir=cache_dir,
                 torch_dtype=torch.bfloat16,
                 load_in_8bit=load_in_8bit,
                 trust_remote_code=True,
@@ -195,7 +196,7 @@ class InternVLChat(BaseModel):
                 device_map=device_map).eval()
         else:
             self.model = AutoModel.from_pretrained(
-                model_path,
+                model_path, cache_dir=cache_dir,
                 torch_dtype=torch.bfloat16,
                 load_in_8bit=load_in_8bit,
                 trust_remote_code=True).eval()
@@ -207,6 +208,10 @@ class InternVLChat(BaseModel):
         kwargs_default = dict(do_sample=False, max_new_tokens=1024, top_p=None, num_beams=1)
         kwargs_default.update(kwargs)
         self.kwargs = kwargs_default
+
+        ###############
+        self.cache_dir=cache_dir
+        ################
 
         warnings.warn(f'Following kwargs received: {self.kwargs}, will use as generation config. ')
 
@@ -352,7 +357,7 @@ class InternVLChat(BaseModel):
         prompt, image_path = self.message_to_promptimg(message, dataset=dataset)
         image = Image.open(image_path).convert('RGB')
         image = image.resize((self.image_size, self.image_size))
-        image_processor = CLIPImageProcessor.from_pretrained(self.model_path)
+        image_processor = CLIPImageProcessor.from_pretrained(self.model_path, cache_dir=self.cache_dir)
         pixel_values = image_processor(images=image, return_tensors='pt').pixel_values
         pixel_values = pixel_values.to(torch.bfloat16).to(self.device)
         with torch.no_grad():

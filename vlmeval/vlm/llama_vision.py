@@ -44,7 +44,7 @@ class llama_vision(BaseModel):
         device_map['multi_modal_projector'] = rank + world_size * (num_gpus - 1)
         return device_map
 
-    def __init__(self, model_path='meta-llama/Llama-3.2-11B-Vision-Instruct', **kwargs):
+    def __init__(self, model_path='meta-llama/Llama-3.2-11B-Vision-Instruct', cache_dir=None, **kwargs):
         try:
             from transformers import MllamaForConditionalGeneration, AutoProcessor
         except Exception as e:
@@ -57,26 +57,26 @@ class llama_vision(BaseModel):
             assert world_size == 1, 'We only support world_size == 1 when AUTO_SPLIT is set for Llama-3.2-11B'
             logging.warning('Currently, we only support to split the 11B model across all GPUs.')
             self.model = MllamaForConditionalGeneration.from_pretrained(
-                model_path,
+                model_path, cache_dir=cache_dir,
                 torch_dtype=torch.bfloat16,
                 device_map='auto',
             ).eval()
         elif '90b' in model_path.lower():
             device_map = self.split_model()
             self.model = MllamaForConditionalGeneration.from_pretrained(
-                model_path,
+                model_path, cache_dir=cache_dir,
                 torch_dtype=torch.bfloat16,
                 device_map=device_map,
             ).eval()
         else:
             self.model = MllamaForConditionalGeneration.from_pretrained(
-                model_path,
+                model_path, cache_dir=cache_dir,
                 torch_dtype=torch.bfloat16,
                 device_map='cpu',
             ).cuda().eval()
 
         self.device = 'cuda'
-        self.processor = AutoProcessor.from_pretrained(model_path)
+        self.processor = AutoProcessor.from_pretrained(model_path, cache_dir=cache_dir)
         if 'Instruct' in model_path:
             kwargs_default = dict(do_sample=True, temperature=0.6, top_p=0.9)
         else:

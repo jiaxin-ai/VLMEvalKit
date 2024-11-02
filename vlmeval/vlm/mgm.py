@@ -1,4 +1,6 @@
 import sys
+from linecache import cache
+
 import torch
 import os.path as osp
 import os
@@ -17,7 +19,7 @@ class Mini_Gemini(BaseModel):
     INSTALL_REQ = True
     INTERLEAVE = False
 
-    def __init__(self, model_path, root=None, conv_mode='llava_v1', **kwargs):
+    def __init__(self, model_path, root=None, conv_mode='llava_v1', cache_dir=None, **kwargs):
         if root is None:
             warnings.warn('Please set `root` to Mini_Gemini code directory, \
                 which is cloned from here: "https://github.com/dvlab-research/MGM?tab=readme-ov-file" ')
@@ -28,8 +30,8 @@ class Mini_Gemini(BaseModel):
         self.model_path = model_path
         sys.path.append(root)
         try:
-            from mgm.model.builder import load_pretrained_model
-            from mgm.mm_utils import get_model_name_from_path
+            from vlmeval.vlm.MGM.mgm.model.builder import load_pretrained_model
+            from vlmeval.vlm.MGM.mgm.mm_utils import get_model_name_from_path
         except Exception as e:
             logging.critical(
                 'Please first install Mini_Gemini and set the root path to use Mini_Gemini, '
@@ -51,7 +53,7 @@ class Mini_Gemini(BaseModel):
             )
             raise e
 
-        tokenizer, model, image_processor, context_len = load_pretrained_model(model_path, None, model_name)
+        tokenizer, model, image_processor, context_len = load_pretrained_model(model_path, None, model_name, cache_dir=cache_dir)
         os.chdir(VLMEvalKit_path)
         self.model = model
         self.tokenizer = tokenizer
